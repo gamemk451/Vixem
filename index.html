@@ -1,42 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vixem</title>
   <style>
+    :root {
+      --blue: #005bbb;
+      --yellow: #ffd500;
+      --white: #f5f5f5;
+    }
+
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: #005bbb; /* blue */
-      color: #fff;
+      background: linear-gradient(135deg, var(--blue), #002f6c);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
+      overflow: hidden;
+      color: var(--white);
     }
+
     h1 {
-      font-size: 4em;
-      margin-bottom: 30px;
-      color: #ffd500; /* yellow */
+      font-size: 5em;
+      margin-bottom: 20px;
+      color: var(--yellow);
+      animation: pulse 2s infinite;
     }
-    a.download-button {
-      padding: 15px 40px;
-      font-size: 1.2em;
-      background: #ffd500;
-      color: #005bbb;
-      text-decoration: none;
+
+    @keyframes pulse {
+      0%, 100% { text-shadow: 0 0 10px var(--yellow); }
+      50% { text-shadow: 0 0 25px var(--yellow); }
+    }
+
+    .download-button {
+      background: var(--yellow);
+      color: var(--blue);
+      border: none;
+      padding: 15px 50px;
+      font-size: 1.4em;
       border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      transition: transform 0.2s ease;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
-    a.download-button:hover {
+
+    .download-button:hover {
       transform: scale(1.05);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+    }
+
+    .section {
+      margin-top: 40px;
+      text-align: center;
+      max-width: 600px;
+      opacity: 0;
+      animation: fadeIn 1.5s ease forwards;
+      animation-delay: 0.8s;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    .section h2 {
+      color: var(--yellow);
+      margin-bottom: 10px;
+    }
+
+    .section p {
+      font-size: 1.1em;
+      line-height: 1.6em;
+      color: var(--white);
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 3em; }
+      .download-button { padding: 12px 30px; font-size: 1.2em; }
     }
   </style>
 </head>
 <body>
   <h1>Vixem</h1>
-  <a href="YOUR_DOWNLOAD_LINK_HERE" class="download-button">Download</a>
+  <a class="download-button" href="YOUR_DOWNLOAD_LINK_HERE">Download</a>
+
+  <div class="section">
+    <h2>Immersive Game Engine</h2>
+    <p>Create, edit, and simulate stunning 3D worlds with scripting, VFX, and player mechanics — all powered by Vixem's modular design.</p>
+  </div>
 </body>
 </html>
