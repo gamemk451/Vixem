@@ -2,97 +2,134 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vixem</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vixem - New Multiplayer Platform</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --blue: #005bbb;
-      --yellow: #ffd500;
-      --white: #f5f5f5;
-    }
-
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, var(--blue), #002f6c);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      overflow: hidden;
-      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f0f0f, #1c1c1c);
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    header {
+      text-align: center;
+      padding: 80px 20px 40px;
+      animation: fadeIn 1.2s ease-out forwards;
     }
 
     h1 {
-      font-size: 5em;
-      margin-bottom: 20px;
-      color: var(--yellow);
-      animation: pulse 2s infinite;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3.5rem;
+      margin-bottom: 10px;
+      color: #00ffcc;
     }
 
-    @keyframes pulse {
-      0%, 100% { text-shadow: 0 0 10px var(--yellow); }
-      50% { text-shadow: 0 0 25px var(--yellow); }
-    }
-
-    .download-button {
-      background: var(--yellow);
-      color: var(--blue);
-      border: none;
-      padding: 15px 50px;
-      font-size: 1.4em;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      text-decoration: none;
-      font-weight: bold;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
-
-    .download-button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.4);
-    }
-
-    .section {
-      margin-top: 40px;
-      text-align: center;
-      max-width: 600px;
-      opacity: 0;
-      animation: fadeIn 1.5s ease forwards;
-      animation-delay: 0.8s;
-    }
-
-    @keyframes fadeIn {
-      to { opacity: 1; }
-    }
-
-    .section h2 {
-      color: var(--yellow);
+    h2 {
+      font-size: 1.5rem;
+      color: #ccc;
       margin-bottom: 10px;
     }
 
-    .section p {
-      font-size: 1.1em;
-      line-height: 1.6em;
-      color: var(--white);
+    p.platform {
+      font-size: 1rem;
+      color: #888;
+      margin-bottom: 30px;
     }
 
-    @media (max-width: 600px) {
-      h1 { font-size: 3em; }
-      .download-button { padding: 12px 30px; font-size: 1.2em; }
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 50px;
+      flex-wrap: wrap;
+      animation: slideUp 1.5s ease-out forwards;
+    }
+
+    .btn {
+      background: #00ffcc;
+      color: #000;
+      border: none;
+      padding: 14px 28px;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px #00ffcc;
+    }
+
+    .developer-card {
+      background: #181818;
+      border-left: 6px solid #00ffcc;
+      margin: 0 auto;
+      max-width: 600px;
+      padding: 30px;
+      border-radius: 16px;
+      text-align: left;
+      animation: fadeIn 2s ease-out forwards;
+    }
+
+    .developer-card h3 {
+      font-size: 1.4rem;
+      margin-bottom: 10px;
+      color: #00ffcc;
+    }
+
+    .developer-card p {
+      font-size: 1rem;
+      color: #ccc;
+      line-height: 1.6;
+    }
+
+    footer {
+      text-align: center;
+      padding: 40px 20px 20px;
+      font-size: 0.85rem;
+      color: #666;
+      animation: fadeIn 2.5s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
-  <h1>Vixem</h1>
-  <a class="download-button" href="YOUR_DOWNLOAD_LINK_HERE">Download</a>
 
-  <div class="section">
-    <h2>Immersive Game Engine</h2>
-    <p>Create games and play them!</p>
-    <p>Update Log: Nothing right now!</p>
-  </div>
+  <header>
+    <h1>Vixem</h1>
+    <h2>New Multiplayer Platform In Development</h2>
+    <p class="platform">Only On Windows</p>
+
+    <div class="buttons">
+      <button class="btn">Download Player</button>
+      <button class="btn">Download Studio</button>
+    </div>
+  </header>
+
+  <section class="developer-card">
+    <h3>FOR DEVELOPERS:</h3>
+    <p>
+      You can code using our custom scripting language: <strong>VixScript</strong>.<br>
+      VixScript runs on a custom-built Virtual Machine with its own Bytecode interpreter — built from the ground up for speed and control.
+    </p>
+  </section>
+
+  <footer>
+    &copy; 2025 Vixem. All rights reserved.
+  </footer>
+
 </body>
 </html>
