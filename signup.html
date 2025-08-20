@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - Vixem</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #ffffff;
+      color: #111;
+      text-align: center;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 40px;
+      border-bottom: 1px solid #eee;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+    }
+
+    header nav a {
+      margin-left: 20px;
+      text-decoration: none;
+      color: #111;
+      font-weight: 500;
+    }
+
+    main {
+      padding: 80px 20px;
+      max-width: 400px;
+      margin: auto;
+    }
+
+    main h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      padding: 12px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      background: #000;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #333;
+    }
+
+    .platforms {
+      margin-top: 50px;
+      font-size: 0.9rem;
+      color: #777;
+    }
+
+    .platform-icons {
+      margin-top: 15px;
+      font-size: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Vixem</h1>
+    <nav>
+      <a href="#">Home</a>
+      <a href="#">Docs</a>
+      <a href="#">Log In</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Create Your Account</h2>
+    <form>
+      <input type="text" placeholder="Username" required>
+      <input type="email" placeholder="Email" required>
+      <input type="password" placeholder="Password" required>
+      <button type="submit">Sign Up</button>
+    </form>
+
+    <div class="platforms">
+      <p>Supported Platforms</p>
+      <div class="platform-icons">iOS, Windows</div>
+    </div>
+  </main>
+</body>
+</html>
