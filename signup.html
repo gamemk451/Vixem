@@ -15,34 +15,45 @@
     </form>
   </main>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js"></script>
-  <script>
-    const firebaseConfig = {
-      // 🔹 replace with your actual config from Firebase Console
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+  <!-- Firebase Modular SDK (v9+) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-analytics.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
 
+    // Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCga58FAppW68zxbVuPNPCiTsnqX4YzN4U",
+      authDomain: "vixem-5c2e1.firebaseapp.com",
+      projectId: "vixem-5c2e1",
+      storageBucket: "vixem-5c2e1.firebasestorage.app",
+      messagingSenderId: "107703363696",
+      appId: "1:107703363696:web:a2171648c5221bedc6ecb5",
+      measurementId: "G-2EH3SV2YDB"
+    };
+
+    // Init
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Signup logic
     document.getElementById("signup-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value;
 
-      const email = `${username}@vixem.dev`;
+      const email = `${username}@vixem.dev`; // artificial email format
 
       try {
-        // Create user
-        const userCred = await auth.createUserWithEmailAndPassword(email, password);
-        
-        // Save user data to Firestore
-        await db.collection("users").doc(userCred.user.uid).set({
+        const userCred = await createUserWithEmailAndPassword(auth, email, password);
+
+        await setDoc(doc(db, "users", userCred.user.uid), {
           username,
           vixdust: 0,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          createdAt: serverTimestamp()
         });
 
         alert("Signup successful! Redirecting...");
