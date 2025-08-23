@@ -1,115 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign Up - Vixem</title>
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #ffffff;
-      color: #111;
-      text-align: center;
-    }
-
-    header {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #1c1c1c;
+      color: white;
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
-      padding: 15px 40px;
-      border-bottom: 1px solid #eee;
+      height: 100vh;
     }
-
-    header h1 {
-      font-size: 1.5rem;
+    .signup-box {
+      background-color: #2a2a2a;
+      padding: 30px;
+      border-radius: 10px;
+      width: 300px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
     }
-
-    header nav a {
-      margin-left: 20px;
-      text-decoration: none;
-      color: #111;
-      font-weight: 500;
-    }
-
-    main {
-      padding: 80px 20px;
-      max-width: 400px;
-      margin: auto;
-    }
-
-    main h2 {
-      font-size: 2rem;
+    .signup-box h2 {
+      text-align: center;
       margin-bottom: 20px;
     }
-
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    input[type="text"],
-    input[type="email"],
-    input[type="password"] {
-      padding: 12px;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-
-    button {
-      padding: 12px;
-      font-size: 1rem;
-      font-weight: bold;
+    .signup-box input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
       border: none;
-      border-radius: 6px;
-      background: #000;
-      color: #fff;
+      border-radius: 5px;
+      background-color: #3a3a3a;
+      color: white;
+    }
+    .signup-box button {
+      width: 100%;
+      padding: 10px;
+      background-color: #0078d7;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      font-weight: bold;
       cursor: pointer;
-      transition: background 0.3s;
     }
-
-    button:hover {
-      background: #333;
-    }
-
-    .platforms {
-      margin-top: 50px;
-      font-size: 0.9rem;
-      color: #777;
-    }
-
-    .platform-icons {
-      margin-top: 15px;
-      font-size: 2rem;
+    .signup-box button:hover {
+      background-color: #005fa3;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Vixem</h1>
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="docs.html">Docs</a>
-      <a href="login.html">Log In</a>
-    </nav>
-  </header>
-
-  <main>
-    <h2>Create Your Account</h2>
+  <div class="signup-box">
+    <h2>Create Account</h2>
     <form id="signup-form">
-      <input type="text" id="username" placeholder="Username" required />
-      <input type="email" id="email" placeholder="Email" required />
-      <input type="password" id="password" placeholder="Password" required />
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="password" id="password" placeholder="Password" required>
       <button type="submit">Sign Up</button>
     </form>
-
-    <div class="platforms">
-      <p>Supported Platforms</p>
-      <div class="platform-icons">iOS, Windows</div>
-    </div>
-  </main>
+  </div>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js"></script>
@@ -121,15 +68,15 @@
       apiKey: "AIzaSyCga58FAppW68zxbVuPNPCiTsnqX4YzN4U",
       authDomain: "vixem-5c2e1.firebaseapp.com",
       projectId: "vixem-5c2e1",
-      storageBucket: "vixem-5c2e1.firebasestorage.app",
+      storageBucket: "vixem-5c2e1.appspot.com",
       messagingSenderId: "107703363696",
       appId: "1:107703363696:web:a2171648c5221bedc6ecb5",
       measurementId: "G-2EH3SV2YDB"
     };
 
-    const app = firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
     const auth = firebase.auth();
-    const analytics = firebase.analytics();
 
     document.getElementById("signup-form").addEventListener("submit", function (e) {
       e.preventDefault();
@@ -138,12 +85,11 @@
 
       auth.createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
-          alert("Account created successfully!");
-          console.log("User:", userCredential.user);
+          alert("Account created!");
+          window.location.href = "home.html";
         })
         .catch((error) => {
-          alert(error.message);
-          console.error("Error:", error);
+          alert("Signup failed: " + error.message);
         });
     });
   </script>
