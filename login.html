@@ -1,33 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Login - Vixem</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Login</h1>
-  <form id="login-form">
-    <input type="text" id="username" placeholder="Username" required>
-    <input type="password" id="password" placeholder="Password" required>
-    <button type="submit">Login</button>
-  </form>
+  <main class="container">
+    <h1>Login</h1>
+    <form id="login-form">
+      <input type="text" id="username" placeholder="Username" required>
+      <input type="password" id="password" placeholder="Password" required>
+      <button type="submit">Login</button>
+    </form>
+  </main>
 
-  <!-- Firebase SDKs -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js"></script>
   <script>
-    const firebaseConfig = { /* your config above */ };
+    const firebaseConfig = {
+      // 🔹 same config here
+    };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
     document.getElementById("login-form").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const username = document.getElementById("username").value;
+      const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value;
       const email = `${username}@vixem.dev`;
 
       try {
         await auth.signInWithEmailAndPassword(email, password);
+        alert("Login successful! Redirecting...");
         window.location.href = "home.html";
       } catch (err) {
         alert("Login failed: " + err.message);
