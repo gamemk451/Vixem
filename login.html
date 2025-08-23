@@ -15,24 +15,38 @@
     </form>
   </main>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js"></script>
-  <script>
-    const firebaseConfig = {
-      // 🔹 same config here
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+  <!-- Firebase Modular SDK (v9+) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-analytics.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
 
+    // Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCga58FAppW68zxbVuPNPCiTsnqX4YzN4U",
+      authDomain: "vixem-5c2e1.firebaseapp.com",
+      projectId: "vixem-5c2e1",
+      storageBucket: "vixem-5c2e1.firebasestorage.app",
+      messagingSenderId: "107703363696",
+      appId: "1:107703363696:web:a2171648c5221bedc6ecb5",
+      measurementId: "G-2EH3SV2YDB"
+    };
+
+    // Init
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
+
+    // Login logic
     document.getElementById("login-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value;
+
       const email = `${username}@vixem.dev`;
 
       try {
-        await auth.signInWithEmailAndPassword(email, password);
+        await signInWithEmailAndPassword(auth, email, password);
         alert("Login successful! Redirecting...");
         window.location.href = "home.html";
       } catch (err) {
