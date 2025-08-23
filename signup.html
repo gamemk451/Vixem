@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign Up - Vixem</title>
   <style>
     body {
@@ -98,10 +98,10 @@
 
   <main>
     <h2>Create Your Account</h2>
-    <form>
-      <input type="text" placeholder="Username" required>
-      <input type="email" placeholder="Email" required>
-      <input type="password" placeholder="Password" required>
+    <form id="signup-form">
+      <input type="text" id="username" placeholder="Username" required />
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
       <button type="submit">Sign Up</button>
     </form>
 
@@ -110,5 +110,42 @@
       <div class="platform-icons">iOS, Windows</div>
     </div>
   </main>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-analytics.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCga58FAppW68zxbVuPNPCiTsnqX4YzN4U",
+      authDomain: "vixem-5c2e1.firebaseapp.com",
+      projectId: "vixem-5c2e1",
+      storageBucket: "vixem-5c2e1.firebasestorage.app",
+      messagingSenderId: "107703363696",
+      appId: "1:107703363696:web:a2171648c5221bedc6ecb5",
+      measurementId: "G-2EH3SV2YDB"
+    };
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const analytics = firebase.analytics();
+
+    document.getElementById("signup-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          alert("Account created successfully!");
+          console.log("User:", userCredential.user);
+        })
+        .catch((error) => {
+          alert(error.message);
+          console.error("Error:", error);
+        });
+    });
+  </script>
 </body>
 </html>
