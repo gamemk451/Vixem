@@ -36,8 +36,13 @@ async function openGroup(groupId) {
     <button id="joinGroup">Join Group</button>
   `;
   document.getElementById("joinGroup").onclick = async () => {
-    await updateDoc(groupRef, { members: arrayUnion(auth.currentUser.uid) });
-    alert("Joined group!");
+    try {
+      await updateDoc(groupRef, { members: arrayUnion(auth.currentUser.uid) });
+      alert("Joined group!");
+    } catch (err) {
+      console.error("Error joining group:", err);
+      alert("Failed to join group: " + err.message);
+    }
   };
   modal.classList.remove("hidden");
 }
@@ -70,10 +75,15 @@ async function openGame(gameId) {
     const name = prompt("Gamepass name?");
     const price = parseInt(prompt("Price in Vixdust?"));
     if (!name || isNaN(price)) return;
-    await addDoc(collection(gameRef, "gamepasses"), {
-      name, price, createdAt: Date.now()
-    });
-    alert("Gamepass created!");
+    try {
+      await addDoc(collection(gameRef, "gamepasses"), {
+        name, price, createdAt: Date.now()
+      });
+      alert("Gamepass created!");
+    } catch (err) {
+      console.error("Error creating gamepass:", err);
+      alert("Failed to create gamepass: " + err.message);
+    }
   };
 
   modal.classList.remove("hidden");
@@ -116,28 +126,42 @@ onAuthStateChanged(auth, (user) => {
 
   // Create group
   document.getElementById("createGroupBtn").onclick = async () => {
-    const name = prompt("Group name?");
-    await addDoc(collection(db, "groups"), {
-      name,
-      owner: user.email,
-      members: [user.uid],
-      createdAt: Date.now()
-    });
-    loadGroups();
+    try {
+      const name = prompt("Group name?");
+      if (!name) return;
+      await addDoc(collection(db, "groups"), {
+        name,
+        owner: user.email,
+        members: [user.uid],
+        createdAt: Date.now()
+      });
+      alert("Group created!");
+      loadGroups();
+    } catch (err) {
+      console.error("Error creating group:", err);
+      alert("Failed to create group: " + err.message);
+    }
   };
 
   // Create game
   document.getElementById("createGameBtn").onclick = async () => {
-    const name = prompt("Game name?");
-    const desc = prompt("Game description?");
-    await addDoc(collection(db, "games"), {
-      name,
-      description: desc,
-      owner: user.email,
-      createdAt: Date.now(),
-      likes: 0,
-      dislikes: 0
-    });
-    loadGames();
+    try {
+      const name = prompt("Game name?");
+      const desc = prompt("Game description?");
+      if (!name) return;
+      await addDoc(collection(db, "games"), {
+        name,
+        description: desc || "",
+        owner: user.email,
+        createdAt: Date.now(),
+        likes: 0,
+        dislikes: 0
+      });
+      alert("Game created!");
+      loadGames();
+    } catch (err) {
+      console.error("Error creating game:", err);
+      alert("Failed to create game: " + err.message);
+    }
   };
 });
