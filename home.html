@@ -6,22 +6,70 @@
 </head>
 <body>
   <h1>Your Dashboard</h1>
-  <p style="text-align:center;">Welcome back! Here's your Vixem world.</p>
   <div id="vixdust" style="text-align:center; font-weight:bold;"></div>
 
   <h2>Create a Game</h2>
   <form id="game-form">
-    <input type="text" placeholder="Game Name" required>
-    <input type="text" placeholder="Thumbnail URL" required>
-    <input type="text" placeholder="Icon URL" required>
-    <textarea placeholder="Description" rows="4" style="width:100%;"></textarea>
+    <input type="text" id="game-name" placeholder="Game Name" required>
+    <input type="text" id="thumbnail" placeholder="Thumbnail URL" required>
+    <input type="text" id="icon" placeholder="Icon URL" required>
+    <textarea id="description" placeholder="Description" rows="4"></textarea>
     <button type="submit">Publish Game</button>
   </form>
 
   <h2>Create a Group (100 Vixdust)</h2>
   <form id="group-form">
-    <input type="text" placeholder="Group Name" required>
+    <input type="text" id="group-name" placeholder="Group Name" required>
     <button type="submit">Create Group</button>
   </form>
 
-  <button onclick="logout()">
+  <button onclick="logout()">Logout</button>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js"></script>
+  <script>
+    const firebaseConfig = { /* your config above */ };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) return window.location.href = "login.html";
+      const snap = await db.collection("users").doc(user.uid).get();
+      document.getElementById("vixdust").textContent = `Vixdust: ${snap.data().vixdust}`;
+    });
+
+    document.getElementById("game-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const user = auth.currentUser;
+      const game = {
+        name: document.getElementById("game-name").value,
+        thumbnail: document.getElementById("thumbnail").value,
+        icon: document.getElementById("icon").value,
+        description: document.getElementById("description").value,
+        creator: user.uid
+      };
+      await db.collection("games").add(game);
+      alert("Game published!");
+    });
+
+    document.getElementById("group-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const user = auth.currentUser;
+      const ref = db.collection("users").doc(user.uid);
+      const snap = await ref.get();
+      const balance = snap.data().vixdust;
+      if (balance < 100) return alert("Not enough Vixdust!");
+      await db.collection("groups").add({ name: document.getElementById("group-name").value, owner: user.uid });
+      await ref.update({ vixdust: balance - 100 });
+      alert("Group created!");
+    });
+
+    function logout() {
+      auth.signOut().then(() => window.location.href = "login.html");
+    }
+  </script>
+</body>
+</html>
