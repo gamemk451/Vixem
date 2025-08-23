@@ -1,13 +1,13 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, updateDoc, arrayUnion, increment } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-storage.js";
 
-// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyCga58FAppW68zxbVuPNPCiTsnqX4YzN4U",
   authDomain: "vixem-5c2e1.firebaseapp.com",
   projectId: "vixem-5c2e1",
-  storageBucket: "vixem-5c2e1.firebasestorage.app",
+  storageBucket: "vixem-5c2e1.appspot.com",
   messagingSenderId: "107703363696",
   appId: "1:107703363696:web:a2171648c5221bedc6ecb5",
   measurementId: "G-2EH3SV2YDB"
@@ -16,8 +16,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
-// Elements
 const usernameDisplay = document.getElementById("username");
 const vixdustDisplay = document.getElementById("vixdust");
 const groupsList = document.getElementById("groupsList");
@@ -25,7 +25,6 @@ const gamesList = document.getElementById("gamesList");
 const modal = document.getElementById("modal");
 const modalBody = document.getElementById("modalBody");
 const closeModal = document.getElementById("closeModal");
-
 closeModal.onclick = () => modal.classList.add("hidden");
 
 // --- Group Popup ---
@@ -43,14 +42,12 @@ async function openGroup(groupId) {
     <p>Members: ${members.length}</p>
     <button id="joinGroupBtn">Join Group</button>
   `;
-
   document.getElementById("joinGroupBtn").onclick = async () => {
     await updateDoc(groupRef, { members: arrayUnion(auth.currentUser.uid) });
     alert("Joined group!");
     loadGroups();
     modal.classList.add("hidden");
   };
-
   modal.classList.remove("hidden");
 }
 
@@ -63,6 +60,8 @@ async function openGame(gameId) {
   const data = snap.data();
   modalBody.innerHTML = `
     <h2>${data.name}</h2>
+    <img src="${data.thumbnail || ''}" alt="Thumbnail" style="max-width:200px; display:block; margin:auto; border-radius:12px;" />
+    <img src="${data.icon || ''}" alt="Icon" style="max-width:100px; display:block; margin:10px auto; border-radius:12px;" />
     <p>${data.description}</p>
     <p>Owner: ${data.owner}</p>
     <p>Likes: ${data.likes || 0} | Dislikes: ${data.dislikes || 0}</p>
@@ -120,11 +119,10 @@ async function loadGames() {
   });
 }
 
-// --- Auth ---
+// --- Auth & User ---
 onAuthStateChanged(auth, async (user) => {
   if (!user) return;
 
-  // Ensure user document exists
   const userRef = doc(db, "users", user.uid);
   let userSnap = await getDoc(userRef);
   let userData;
@@ -136,7 +134,6 @@ onAuthStateChanged(auth, async (user) => {
   usernameDisplay.innerText = userData.username;
   vixdustDisplay.innerText = `Vixdust: ${userData.vixdust}`;
 
-  // Load lists
   loadGroups();
   loadGames();
 
@@ -153,19 +150,51 @@ onAuthStateChanged(auth, async (user) => {
     loadGroups();
   };
 
-  // Create Game
+  // Create Game with thumbnail + icon
   document.getElementById("createGameBtn").onclick = async () => {
     const name = prompt("Game name?");
-    const desc = prompt("Game description?");
     if (!name) return;
-    await addDoc(collection(db, "games"), {
+    const desc = prompt("Game description?") || "";
+    
+    // Choose files
+    const thumbFile = await new Promise(resolve => {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = ".png";
+      input.onchange = e => resolve(input.files[0]);
+      input.click();
+    });
+    const iconFile = await new Promise(resolve => {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = ".png";
+      input.onchange = e => resolve(input.files[0]);
+      input.click();
+    });
+
+    const gameRef = await addDoc(collection(db, "games"), {
       name,
-      description: desc || "",
+      description: desc,
       owner: userData.username,
       createdAt: Date.now(),
       likes: 0,
       dislikes: 0
     });
+
+    // Upload images
+    if (thumbFile) {
+      const thumbRef = ref(storage, `games/${gameRef.id}/thumbnail.png`);
+      await uploadBytes(thumbRef, thumbFile);
+      const url = await getDownloadURL(thumbRef);
+      await updateDoc(gameRef, { thumbnail: url });
+    }
+    if (iconFile) {
+      const iconRef = ref(storage, `games/${gameRef.id}/icon.png`);
+      await uploadBytes(iconRef, iconFile);
+      const url = await getDownloadURL(iconRef);
+      await updateDoc(gameRef, { icon: url });
+    }
+
     loadGames();
   };
 });
