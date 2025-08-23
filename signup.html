@@ -1,40 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Sign Up - Vixem</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Create Your Account</h1>
-  <form id="signup-form">
-    <input type="text" id="username" placeholder="Username" required>
-    <input type="password" id="password" placeholder="Password" required>
-    <button type="submit">Sign Up</button>
-  </form>
+  <main class="container">
+    <h1>Create Your Account</h1>
+    <form id="signup-form">
+      <input type="text" id="username" placeholder="Username" required>
+      <input type="password" id="password" placeholder="Password" required>
+      <button type="submit">Sign Up</button>
+    </form>
+  </main>
 
-  <!-- Firebase SDKs -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js"></script>
   <script>
-    const firebaseConfig = { /* your config above */ };
+    const firebaseConfig = {
+      // 🔹 replace with your actual config from Firebase Console
+    };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
     document.getElementById("signup-form").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const username = document.getElementById("username").value;
+      const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value;
+
       const email = `${username}@vixem.dev`;
 
       try {
+        // Create user
         const userCred = await auth.createUserWithEmailAndPassword(email, password);
-        await userCred.user.sendEmailVerification();
+        
+        // Save user data to Firestore
         await db.collection("users").doc(userCred.user.uid).set({
           username,
-          vixdust: 0
+          vixdust: 0,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
+
+        alert("Signup successful! Redirecting...");
         window.location.href = "home.html";
       } catch (err) {
         alert("Signup failed: " + err.message);
