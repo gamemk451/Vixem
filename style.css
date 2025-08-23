@@ -1,142 +1,66 @@
-/* Base Reset + Modern Layout */
+/* style.css — Vixem Theme */
 body {
-    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background: linear-gradient(180deg, #fdfdfd, #f4f4f4);
-    color: #333;
-    line-height: 1.6;
+  margin: 0;
+  font-family: 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(180deg, #fff, #eee);
+  color: #222;
+  transition: background 0.5s ease;
 }
 
-/* Header */
-h1 {
-    color: #111;
-    text-align: center;
-    padding: 50px 20px 20px;
-    font-size: 2.5rem;
-    font-weight: 700;
-    letter-spacing: -0.5px;
+h1, h2 {
+  text-align: center;
+  font-weight: 700;
+  margin-top: 40px;
+  animation: fadeInDown 0.6s ease;
 }
 
-/* Section Heading */
-h2 {
-    text-align: center;
-    font-size: 2rem;
-    font-weight: 600;
-    color: #222;
-    margin-top: 60px;
-    margin-bottom: 30px;
-    position: relative;
-    display: block;
+form {
+  max-width: 400px;
+  margin: 30px auto;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  animation: fadeInUp 0.6s ease;
 }
 
-h2::after {
-    content: "";
-    display: block;
-    width: 70px;
-    height: 3px;
-    background: #555;
-    margin: 12px auto 0;
-    border-radius: 2px;
+input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  transition: all 0.3s ease;
 }
 
-/* Paragraphs */
-p {
-    color: #555;
-    max-width: 750px;
-    margin: 0 auto 25px;
-    font-size: 1.1rem;
-    text-align: center;
-    line-height: 1.8;
+input:focus {
+  border-color: #444;
+  background: #fff;
 }
 
-/* Images */
-img {
-    max-width: 85%;
-    height: auto;
-    display: block;
-    margin: 40px auto;
-    border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-    transition: transform 0.3s ease;
-}
-
-img:hover {
-    transform: scale(1.02);
-}
-
-/* Features Grid */
-ul {
-    max-width: 900px;
-    margin: 40px auto;
-    padding: 0;
-    list-style: none;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-}
-
-ul li {
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    font-size: 1.05rem;
-    color: #444;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-/* Custom marker */
-ul li::before {
-    content: "▹";
-    color: #666;
-    font-weight: bold;
-    font-size: 1.3rem;
-}
-
-/* Hover effect */
-ul li:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-}
-
-/* Modern Button */
 button {
-    display: inline-block;
-    padding: 14px 36px;
-    font-size: 16px;
-    font-weight: 600;
-    color: #fff;
-    background: linear-gradient(135deg, #444, #666);
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    margin: 40px auto;
-    display: block;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
-    transition: all 0.3s ease;
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #444, #666);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 button:hover {
-    transform: translateY(-3px) scale(1.04);
-    background: linear-gradient(135deg, #555, #777);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
 
-button:active {
-    transform: translateY(1px) scale(0.97);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* Footer */
-footer {
-    text-align: center;
-    padding: 40px 15px;
-    color: #777;
-    font-size: 0.95rem;
-    background: #f2f2f2;
-    margin-top: 60px;
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
