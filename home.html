@@ -2,50 +2,87 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Home - Vixem</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vixem Home</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .profile {
+      background: #ffffff;
+      padding: 15px;
+      margin: 0 auto 20px;
+      max-width: 500px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .section {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 500px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    input, textarea, button {
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      cursor: pointer;
+      border: none;
+      transition: 0.2s;
+    }
+    button:hover {
+      background: #45a049;
+    }
+  </style>
 </head>
 <body>
-  <main class="container">
-    <h1 id="welcome">Welcome!</h1>
-    <p id="vixdust">Loading your balance...</p>
-    <div class="button-group">
-      <button id="logout-btn">Logout</button>
-    </div>
+  <h1>Welcome to Vixem</h1>
 
-    <hr>
+  <!-- Profile Info -->
+  <div class="profile">
+    <h2 id="username">Username: ...</h2>
+    <p id="vixdust">Vixdust: ...</p>
+  </div>
 
-    <!-- Groups -->
-    <section>
-      <h2>Create a Group</h2>
-      <input id="group-name" placeholder="Group Name">
-      <button id="create-group-btn">Create Group</button>
-      <p id="group-status"></p>
-    </section>
+  <!-- Group Creation Section -->
+  <div class="section">
+    <h2>Create Group</h2>
+    <input type="text" id="groupName" placeholder="Enter group name">
+    <button id="createGroupBtn">Create Group</button>
+  </div>
 
-    <hr>
+  <!-- Game Creation Section -->
+  <div class="section">
+    <h2>Create Game</h2>
+    <input type="text" id="gameName" placeholder="Enter game name">
+    <textarea id="gameDesc" placeholder="Enter game description"></textarea>
+    <button id="createGameBtn">Create Game</button>
+  </div>
 
-    <!-- Games -->
-    <section>
-      <h2>Create a Game</h2>
-      <input id="game-name" placeholder="Game Name"><br>
-      <textarea id="game-desc" placeholder="Game Description"></textarea><br>
-      <label>Thumbnail: <input type="file" id="game-thumb" accept="image/png"></label><br>
-      <label>Icon: <input type="file" id="game-icon" accept="image/png"></label><br>
-      <button id="create-game-btn">Create Game</button>
-      <p id="game-status"></p>
-    </section>
-  </main>
-
-  <!-- Firebase Modular SDK -->
+  <!-- Firebase + App Script -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-analytics.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-storage.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+    import { getFirestore, collection, doc, getDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
-    // Config
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCga58FAppW68zxbVuPNPCiTsnqX4YzN4U",
       authDomain: "vixem-5c2e1.firebaseapp.com",
@@ -56,120 +93,63 @@
       measurementId: "G-2EH3SV2YDB"
     };
 
-    // Init
     const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    const storage = getStorage(app);
 
-    // Elements
-    const welcomeEl = document.getElementById("welcome");
-    const vixdustEl = document.getElementById("vixdust");
-    const logoutBtn = document.getElementById("logout-btn");
-
-    const groupNameEl = document.getElementById("group-name");
-    const groupStatusEl = document.getElementById("group-status");
-    const createGroupBtn = document.getElementById("create-group-btn");
-
-    const gameNameEl = document.getElementById("game-name");
-    const gameDescEl = document.getElementById("game-desc");
-    const gameThumbEl = document.getElementById("game-thumb");
-    const gameIconEl = document.getElementById("game-icon");
-    const gameStatusEl = document.getElementById("game-status");
-    const createGameBtn = document.getElementById("create-game-btn");
-
-    let currentUser = null;
-
-    // Auth state
+    // Handle auth state
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        currentUser = user;
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists()) {
-          const data = userDoc.data();
-          welcomeEl.textContent = `Welcome, ${data.username}!`;
-          vixdustEl.textContent = `💎 Vixdust: ${data.vixdust}`;
+        console.log("Logged in:", user.uid);
+
+        // Fetch user profile (username + vixdust)
+        const userRef = doc(db, "users", user.uid);
+        const snap = await getDoc(userRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          document.getElementById("username").innerText = "Username: " + (data.username || "Unknown");
+          document.getElementById("vixdust").innerText = "Vixdust: " + (data.vixdust || 0);
         }
+
+        // --- GROUP CREATION ---
+        document.getElementById("createGroupBtn").addEventListener("click", async () => {
+          const groupName = document.getElementById("groupName").value;
+          if (!groupName) return alert("Enter a group name!");
+          try {
+            await addDoc(collection(db, "groups"), {
+              name: groupName,
+              members: [user.uid],
+              createdAt: serverTimestamp()
+            });
+            alert("✅ Group created!");
+          } catch (err) {
+            console.error("❌ Error creating group:", err);
+          }
+        });
+
+        // --- GAME CREATION ---
+        document.getElementById("createGameBtn").addEventListener("click", async () => {
+          const gameName = document.getElementById("gameName").value;
+          const gameDesc = document.getElementById("gameDesc").value;
+          if (!gameName) return alert("Enter a game name!");
+
+          try {
+            await addDoc(collection(db, "games"), {
+              name: gameName,
+              description: gameDesc,
+              owner: user.uid,                  
+              createdAt: serverTimestamp(),
+              thumbnailUrl: null,
+              iconUrl: null
+            });
+            alert("✅ Game created!");
+          } catch (err) {
+            console.error("❌ Error creating game:", err);
+          }
+        });
+
       } else {
-        window.location.href = "login.html";
-      }
-    });
-
-    // Logout
-    logoutBtn.addEventListener("click", async () => {
-      await signOut(auth);
-      window.location.href = "login.html";
-    });
-
-    // Create Group
-    createGroupBtn.addEventListener("click", async () => {
-      if (!currentUser) return;
-      const name = groupNameEl.value.trim();
-      if (!name) {
-        groupStatusEl.textContent = "❌ Please enter a group name.";
-        return;
-      }
-      try {
-        await addDoc(collection(db, "groups"), {
-          name,
-          owner: currentUser.uid,
-          members: [currentUser.uid],
-          createdAt: serverTimestamp()
-        });
-        groupStatusEl.textContent = "✅ Group created successfully!";
-        groupNameEl.value = "";
-      } catch (err) {
-        console.error(err);
-        groupStatusEl.textContent = "❌ Error: " + err.message;
-      }
-    });
-
-    // Create Game
-    createGameBtn.addEventListener("click", async () => {
-      if (!currentUser) return;
-      const name = gameNameEl.value.trim();
-      const desc = gameDescEl.value.trim();
-      if (!name) {
-        gameStatusEl.textContent = "❌ Please enter a game name.";
-        return;
-      }
-
-      try {
-        let thumbUrl = "";
-        let iconUrl = "";
-
-        if (gameThumbEl.files.length > 0) {
-          const thumbFile = gameThumbEl.files[0];
-          const thumbRef = ref(storage, `games/${currentUser.uid}/thumb_${Date.now()}.png`);
-          await uploadBytes(thumbRef, thumbFile);
-          thumbUrl = await getDownloadURL(thumbRef);
-        }
-
-        if (gameIconEl.files.length > 0) {
-          const iconFile = gameIconEl.files[0];
-          const iconRef = ref(storage, `games/${currentUser.uid}/icon_${Date.now()}.png`);
-          await uploadBytes(iconRef, iconFile);
-          iconUrl = await getDownloadURL(iconRef);
-        }
-
-        await addDoc(collection(db, "games"), {
-          name,
-          description: desc,
-          owner: currentUser.uid,
-          thumbnail: thumbUrl,
-          icon: iconUrl,
-          createdAt: serverTimestamp()
-        });
-
-        gameStatusEl.textContent = "✅ Game created successfully!";
-        gameNameEl.value = "";
-        gameDescEl.value = "";
-        gameThumbEl.value = "";
-        gameIconEl.value = "";
-      } catch (err) {
-        console.error(err);
-        gameStatusEl.textContent = "❌ Error: " + err.message;
+        console.log("No user logged in");
       }
     });
   </script>
