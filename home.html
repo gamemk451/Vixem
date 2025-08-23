@@ -7,237 +7,35 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Welcome to Vixem</h1>
+  <header>
+    <h1>Welcome, <span id="username"></span></h1>
+    <p>Balance: <span id="vixdust"></span> Vixdust</p>
+  </header>
 
-  <!-- Profile Info -->
-  <div class="profile">
-    <h2 id="username">Username: ...</h2>
-    <p id="vixdust">Vixdust: ...</p>
+  <main>
+    <!-- GROUPS -->
+    <section>
+      <h2>Groups</h2>
+      <button id="createGroupBtn">➕ Create Group</button>
+      <div id="groupsList"></div>
+    </section>
+
+    <!-- GAMES -->
+    <section>
+      <h2>Games</h2>
+      <button id="createGameBtn">➕ Create Game</button>
+      <div id="gamesList"></div>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <span id="closeModal" class="close">&times;</span>
+      <div id="modalBody"></div>
+    </div>
   </div>
 
-  <!-- Group Creation -->
-  <div class="section">
-    <h2>Create Group</h2>
-    <input type="text" id="groupName" placeholder="Enter group name">
-    <button id="createGroupBtn">Create Group</button>
-  </div>
-
-  <!-- Game Creation -->
-  <div class="section">
-    <h2>Create Game</h2>
-    <input type="text" id="gameName" placeholder="Enter game name">
-    <textarea id="gameDesc" placeholder="Enter game description"></textarea>
-    <label>Thumbnail: <input type="file" id="gameThumbnail" accept="image/png"></label>
-    <label>Icon: <input type="file" id="gameIcon" accept="image/png"></label>
-    <button id="createGameBtn">Create Game</button>
-  </div>
-
-  <!-- Gamepass Creation -->
-  <div class="section">
-    <h2>Create Gamepass</h2>
-    <input type="text" id="gamepassName" placeholder="Gamepass name">
-    <input type="number" id="gamepassPrice" placeholder="Price in Vixdust">
-    <input type="text" id="gameIdForPass" placeholder="Enter Game ID">
-    <button id="createGamepassBtn">Create Gamepass</button>
-  </div>
-
-  <!-- Groups List -->
-  <div class="section">
-    <h2>Groups</h2>
-    <div id="groupsList"></div>
-  </div>
-
-  <!-- Games List -->
-  <div class="section">
-    <h2>Games</h2>
-    <div id="gamesList"></div>
-  </div>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
-    import { getFirestore, collection, doc, getDoc, setDoc, addDoc, updateDoc, onSnapshot, arrayUnion, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-storage.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyCga58FAppW68zxbVuPNPCiTsnqX4YzN4U",
-      authDomain: "vixem-5c2e1.firebaseapp.com",
-      projectId: "vixem-5c2e1",
-      storageBucket: "vixem-5c2e1.appspot.com",
-      messagingSenderId: "107703363696",
-      appId: "1:107703363696:web:a2171648c5221bedc6ecb5",
-      measurementId: "G-2EH3SV2YDB"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
-
-    let currentUser = null;
-
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) return;
-      currentUser = user;
-
-      const userRef = doc(db, "users", user.uid);
-      const snap = await getDoc(userRef);
-      if (snap.exists()) {
-        const data = snap.data();
-        document.getElementById("username").innerText = "Username: " + (data.username || "Unknown");
-        document.getElementById("vixdust").innerText = "Vixdust: " + (data.vixdust || 0);
-      }
-
-      // Create Group
-      document.getElementById("createGroupBtn").addEventListener("click", async () => {
-        const groupName = document.getElementById("groupName").value;
-        if (!groupName) return alert("Enter a group name!");
-        await addDoc(collection(db, "groups"), {
-          name: groupName,
-          members: [user.uid],
-          owner: user.uid,
-          createdAt: serverTimestamp()
-        });
-      });
-
-      // Create Game
-      document.getElementById("createGameBtn").addEventListener("click", async () => {
-        const gameName = document.getElementById("gameName").value;
-        const gameDesc = document.getElementById("gameDesc").value;
-        const thumbFile = document.getElementById("gameThumbnail").files[0];
-        const iconFile = document.getElementById("gameIcon").files[0];
-
-        let thumbUrl = null;
-        let iconUrl = null;
-
-        if (thumbFile) {
-          const thumbRef = ref(storage, "games/" + Date.now() + "_thumb.png");
-          await uploadBytes(thumbRef, thumbFile);
-          thumbUrl = await getDownloadURL(thumbRef);
-        }
-
-        if (iconFile) {
-          const iconRef = ref(storage, "games/" + Date.now() + "_icon.png");
-          await uploadBytes(iconRef, iconFile);
-          iconUrl = await getDownloadURL(iconRef);
-        }
-
-        await addDoc(collection(db, "games"), {
-          name: gameName,
-          description: gameDesc,
-          owner: user.uid,
-          createdAt: serverTimestamp(),
-          thumbnailUrl: thumbUrl,
-          iconUrl: iconUrl,
-          likes: 0,
-          dislikes: 0
-        });
-      });
-
-      // Create Gamepass
-      document.getElementById("createGamepassBtn").addEventListener("click", async () => {
-        const passName = document.getElementById("gamepassName").value;
-        const price = parseInt(document.getElementById("gamepassPrice").value);
-        const gameId = document.getElementById("gameIdForPass").value;
-
-        if (!passName || !price || !gameId) return alert("Fill all fields!");
-
-        const gameRef = doc(db, "games", gameId);
-        const passId = Date.now().toString();
-
-        await setDoc(doc(collection(gameRef, "gamepasses"), passId), {
-          name: passName,
-          price: price,
-          createdAt: serverTimestamp()
-        });
-        alert("Gamepass created!");
-      });
-
-      // Live Groups
-      onSnapshot(collection(db, "groups"), async (snapshot) => {
-        const list = document.getElementById("groupsList");
-        list.innerHTML = "";
-        for (let docSnap of snapshot.docs) {
-          const data = docSnap.data();
-          const ownerSnap = await getDoc(doc(db, "users", data.owner));
-          const ownerName = ownerSnap.exists() ? ownerSnap.data().username : "Unknown";
-
-          const div = document.createElement("div");
-          div.innerHTML = `
-            <b>${data.name}</b> (Owner: ${ownerName})<br>
-            Members: ${data.members.length}<br>
-            <button onclick="joinGroup('${docSnap.id}')">Join</button>
-          `;
-          list.appendChild(div);
-        }
-      });
-
-      // Live Games
-      onSnapshot(collection(db, "games"), async (snapshot) => {
-        const list = document.getElementById("gamesList");
-        list.innerHTML = "";
-        for (let docSnap of snapshot.docs) {
-          const data = docSnap.data();
-          const ownerSnap = await getDoc(doc(db, "users", data.owner));
-          const ownerName = ownerSnap.exists() ? ownerSnap.data().username : "Unknown";
-
-          const div = document.createElement("div");
-          div.innerHTML = `
-            <b>${data.name}</b> (Owner: ${ownerName})<br>
-            ${data.description}<br>
-            Likes: ${data.likes} | Dislikes: ${data.dislikes}<br>
-            <button onclick="likeGame('${docSnap.id}')">Like</button>
-            <button onclick="dislikeGame('${docSnap.id}')">Dislike</button>
-            <div>
-              ${data.thumbnailUrl ? `<img src="${data.thumbnailUrl}" width="150">` : ""}
-              ${data.iconUrl ? `<img src="${data.iconUrl}" width="50">` : ""}
-            </div>
-            <div id="gamepasses-${docSnap.id}"></div>
-          `;
-          list.appendChild(div);
-
-          // Load Gamepasses
-          onSnapshot(collection(doc(db, "games", docSnap.id), "gamepasses"), (passesSnap) => {
-            const passesDiv = document.getElementById("gamepasses-" + docSnap.id);
-            passesDiv.innerHTML = "<b>Gamepasses:</b><br>";
-            passesSnap.forEach((passDoc) => {
-              const pass = passDoc.data();
-              passesDiv.innerHTML += `
-                ${pass.name} - ${pass.price} Vixdust
-                <button onclick="buyGamepass('${docSnap.id}','${passDoc.id}',${pass.price})">Buy</button><br>
-              `;
-            });
-          });
-        }
-      });
-
-    });
-
-    // Join Group
-    window.joinGroup = async (groupId) => {
-      const groupRef = doc(db, "groups", groupId);
-      await updateDoc(groupRef, { members: arrayUnion(currentUser.uid) });
-    };
-
-    // Like / Dislike
-    window.likeGame = async (gameId) => {
-      await updateDoc(doc(db, "games", gameId), { likes: increment(1) });
-    };
-    window.dislikeGame = async (gameId) => {
-      await updateDoc(doc(db, "games", gameId), { dislikes: increment(1) });
-    };
-
-    // Buy Gamepass
-    window.buyGamepass = async (gameId, passId, price) => {
-      const userRef = doc(db, "users", currentUser.uid);
-      const snap = await getDoc(userRef);
-      if (snap.exists()) {
-        const balance = snap.data().vixdust || 0;
-        if (balance < price) return alert("Not enough Vixdust!");
-        await updateDoc(userRef, { vixdust: balance - price });
-        alert("Bought gamepass!");
-      }
-    };
-  </script>
+  <script type="module" src="home.js"></script>
 </body>
 </html>
