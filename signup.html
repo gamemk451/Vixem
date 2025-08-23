@@ -12,29 +12,33 @@
     <button type="submit">Sign Up</button>
   </form>
 
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js"></script>
   <script>
-    const firebaseConfig = { /* your config */ };
+    const firebaseConfig = { /* your config above */ };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    document.getElementById("signup-form").addEventListener("submit", function(e) {
+    document.getElementById("signup-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const username = document.getElementById("username").value;
       const password = document.getElementById("password").value;
       const email = `${username}@vixem.dev`;
 
-      auth.createUserWithEmailAndPassword(email, password)
-        .then(user => {
-          return db.collection("users").doc(user.user.uid).set({ username, vixdust: 0 });
-        })
-        .then(() => {
-          window.location.href = "home.html";
-        })
-        .catch(err => alert("Signup failed: " + err.message));
+      try {
+        const userCred = await auth.createUserWithEmailAndPassword(email, password);
+        await userCred.user.sendEmailVerification();
+        await db.collection("users").doc(userCred.user.uid).set({
+          username,
+          vixdust: 0
+        });
+        window.location.href = "home.html";
+      } catch (err) {
+        alert("Signup failed: " + err.message);
+      }
     });
   </script>
 </body>
