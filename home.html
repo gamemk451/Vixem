@@ -2,40 +2,204 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vixem Home</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>Welcome, <span id="username"></span></h1>
-    <p>Balance: <span id="vixdust"></span> Vixdust</p>
-  </header>
+  <h1>Welcome to Vixem</h1>
 
-  <main>
-    <!-- GROUPS -->
-    <section>
-      <h2>Groups</h2>
-      <button id="createGroupBtn">➕ Create Group</button>
-      <div id="groupsList"></div>
-    </section>
+  <div id="userInfo"></div>
 
-    <!-- GAMES -->
-    <section>
-      <h2>Games</h2>
-      <button id="createGameBtn">➕ Create Game</button>
-      <div id="gamesList"></div>
-    </section>
-  </main>
-
-  <!-- Modal -->
-  <div id="modal" class="modal hidden">
-    <div class="modal-content">
-      <span id="closeModal" class="close">&times;</span>
-      <div id="modalBody"></div>
-    </div>
+  <!-- Create Group -->
+  <div>
+    <h2>Create Group</h2>
+    <input type="text" id="groupName" placeholder="Group name">
+    <button id="createGroupBtn">Create Group</button>
   </div>
 
-  <script type="module" src="home.js"></script>
+  <!-- Create Game -->
+  <div>
+    <h2>Create Game</h2>
+    <input type="text" id="gameName" placeholder="Game name"><br>
+    <textarea id="gameDesc" placeholder="Game description"></textarea><br>
+    <label>Thumbnail: <input type="file" id="gameThumbnail" accept="image/png"></label><br>
+    <label>Icon: <input type="file" id="gameIcon" accept="image/png"></label><br>
+    <button id="createGameBtn">Create Game</button>
+  </div>
+
+  <!-- Group List -->
+  <h2>Groups</h2>
+  <div id="groupsList"></div>
+
+  <!-- Game List -->
+  <h2>Games</h2>
+  <div id="gamesList"></div>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, getDocs, updateDoc, doc, arrayUnion, increment } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-storage.js";
+
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCga58FAppW68zxbVuPNPCiTsnqX4YzN4U",
+      authDomain: "vixem-5c2e1.firebaseapp.com",
+      projectId: "vixem-5c2e1",
+      storageBucket: "vixem-5c2e1.firebasestorage.app",
+      messagingSenderId: "107703363696",
+      appId: "1:107703363696:web:a2171648c5221bedc6ecb5",
+      measurementId: "G-2EH3SV2YDB"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    // Toggle dropdown
+    function toggleDropdown(id) {
+      const panel = document.getElementById(id);
+      panel.style.display = (panel.style.display === "block") ? "none" : "block";
+    }
+
+    // Auth state
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return;
+      document.getElementById("userInfo").innerText = `👤 ${user.displayName || user.email} | 💰 Vixdust (placeholder)`;
+
+      // --- CREATE GROUP ---
+      document.getElementById("createGroupBtn").onclick = async () => {
+        const name = document.getElementById("groupName").value;
+        if (!name) return alert("Enter group name!");
+        await addDoc(collection(db, "groups"), {
+          name,
+          members: [user.uid],
+          owner: user.uid,
+          createdAt: serverTimestamp()
+        });
+        alert("✅ Group created!");
+        loadGroups();
+      };
+
+      // --- CREATE GAME ---
+      document.getElementById("createGameBtn").onclick = async () => {
+        const name = document.getElementById("gameName").value;
+        const desc = document.getElementById("gameDesc").value;
+        if (!name) return alert("Enter game name!");
+
+        let thumbUrl = null, iconUrl = null;
+
+        const thumbFile = document.getElementById("gameThumbnail").files[0];
+        const iconFile = document.getElementById("gameIcon").files[0];
+
+        if (thumbFile) {
+          const thumbRef = ref(storage, `games/${user.uid}_${Date.now()}_thumb.png`);
+          await uploadBytes(thumbRef, thumbFile);
+          thumbUrl = await getDownloadURL(thumbRef);
+        }
+        if (iconFile) {
+          const iconRef = ref(storage, `games/${user.uid}_${Date.now()}_icon.png`);
+          await uploadBytes(iconRef, iconFile);
+          iconUrl = await getDownloadURL(iconRef);
+        }
+
+        await addDoc(collection(db, "games"), {
+          name, description: desc,
+          owner: user.uid,
+          createdAt: serverTimestamp(),
+          thumbnailUrl: thumbUrl,
+          iconUrl: iconUrl,
+          likes: 0, dislikes: 0
+        });
+
+        alert("✅ Game created!");
+        loadGames();
+      };
+
+      // --- LOAD GROUPS ---
+      async function loadGroups() {
+        const snap = await getDocs(collection(db, "groups"));
+        const container = document.getElementById("groupsList");
+        container.innerHTML = "";
+        snap.forEach(docSnap => {
+          const g = docSnap.data();
+          const id = docSnap.id;
+          const div = document.createElement("div");
+          div.innerHTML = `
+            <button onclick="toggleDropdown('group_${id}')">${g.name}</button>
+            <div id="group_${id}" style="display:none; padding:10px; border:1px solid #ccc; margin:5px;">
+              <p>Owner: ${g.owner}</p>
+              <p>Members: ${g.members.length}</p>
+              <button onclick="joinGroup('${id}')">Join Group</button>
+            </div>`;
+          container.appendChild(div);
+        });
+      }
+
+      // --- LOAD GAMES ---
+      async function loadGames() {
+        const snap = await getDocs(collection(db, "games"));
+        const container = document.getElementById("gamesList");
+        container.innerHTML = "";
+        snap.forEach(docSnap => {
+          const g = docSnap.data();
+          const id = docSnap.id;
+          const div = document.createElement("div");
+          div.innerHTML = `
+            <button onclick="toggleDropdown('game_${id}')">${g.name}</button>
+            <div id="game_${id}" style="display:none; padding:10px; border:1px solid #ccc; margin:5px;">
+              <p>Owner: ${g.owner}</p>
+              <p>${g.description}</p>
+              ${g.thumbnailUrl ? `<img src="${g.thumbnailUrl}" width="100">` : ""}
+              ${g.iconUrl ? `<img src="${g.iconUrl}" width="50">` : ""}
+              <p>👍 ${g.likes || 0} | 👎 ${g.dislikes || 0}</p>
+              <button onclick="likeGame('${id}')">Like</button>
+              <button onclick="dislikeGame('${id}')">Dislike</button>
+              <h4>Gamepasses</h4>
+              <button onclick="addGamepass('${id}')">Add Gamepass</button>
+              <div id="gamepasses_${id}"></div>
+            </div>`;
+          container.appendChild(div);
+        });
+      }
+
+      window.toggleDropdown = toggleDropdown;
+
+      window.joinGroup = async (id) => {
+        const refDoc = doc(db, "groups", id);
+        await updateDoc(refDoc, { members: arrayUnion(user.uid) });
+        loadGroups();
+      };
+
+      window.likeGame = async (id) => {
+        const refDoc = doc(db, "games", id);
+        await updateDoc(refDoc, { likes: increment(1) });
+        loadGames();
+      };
+
+      window.dislikeGame = async (id) => {
+        const refDoc = doc(db, "games", id);
+        await updateDoc(refDoc, { dislikes: increment(1) });
+        loadGames();
+      };
+
+      window.addGamepass = async (id) => {
+        const name = prompt("Gamepass name?");
+        const price = parseInt(prompt("Price in Vixdust?"));
+        if (!name || isNaN(price)) return;
+        const refDoc = doc(db, "games", id);
+        await updateDoc(refDoc, {
+          gamepasses: arrayUnion({ name, price })
+        });
+        loadGames();
+      };
+
+      // Initial loads
+      loadGroups();
+      loadGames();
+    });
+  </script>
 </body>
 </html>
