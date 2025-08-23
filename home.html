@@ -5,31 +5,23 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Welcome to Vixem</h1>
-  <p>Your games, your tools, your world.</p>
-  <ul>
-    <li>Revival Realms</li>
-    <li>Era Builders</li>
-    <li>Sandbox Legends</li>
-  </ul>
-  <button onclick="logout()">Logout</button>
+  <h1>Your Dashboard</h1>
+  <p style="text-align:center;">Welcome back! Here's your Vixem world.</p>
+  <div id="vixdust" style="text-align:center; font-weight:bold;"></div>
 
-  <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js"></script>
-  <script>
-    const firebaseConfig = { /* your config */ };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+  <h2>Create a Game</h2>
+  <form id="game-form">
+    <input type="text" placeholder="Game Name" required>
+    <input type="text" placeholder="Thumbnail URL" required>
+    <input type="text" placeholder="Icon URL" required>
+    <textarea placeholder="Description" rows="4" style="width:100%;"></textarea>
+    <button type="submit">Publish Game</button>
+  </form>
 
-    function logout() {
-      auth.signOut().then(() => {
-        window.location.href = "login.html";
-      });
-    }
+  <h2>Create a Group (100 Vixdust)</h2>
+  <form id="group-form">
+    <input type="text" placeholder="Group Name" required>
+    <button type="submit">Create Group</button>
+  </form>
 
-    auth.onAuthStateChanged((user) => {
-      if (!user) window.location.href = "login.html";
-    });
-  </script>
-</body>
-</html>
+  <button onclick="logout()">
