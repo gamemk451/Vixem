@@ -4,12 +4,6 @@
   <meta charset="UTF-8">
   <title>Home - Vixem</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 10px; }
-    .card { padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; }
-    .post { font-size: 0.9em; padding: 5px; border-bottom: 1px solid #eee; }
-    img { max-width: 80px; display: block; margin-top: 5px; }
-  </style>
 </head>
 <body>
   <main class="container">
@@ -19,32 +13,28 @@
       <button id="logout-btn">Logout</button>
     </div>
 
+    <hr>
+
     <!-- Groups -->
-    <div class="section">
-      <h2>Groups</h2>
-      <form id="create-group-form">
-        <input type="text" id="group-name" placeholder="Group name" required>
-        <button type="submit">Create Group</button>
-      </form>
-      <form id="join-group-form">
-        <input type="text" id="join-group-id" placeholder="Group ID" required>
-        <button type="submit">Join Group</button>
-      </form>
-      <div id="groups-list"></div>
-    </div>
+    <section>
+      <h2>Create a Group</h2>
+      <input id="group-name" placeholder="Group Name">
+      <button id="create-group-btn">Create Group</button>
+      <p id="group-status"></p>
+    </section>
+
+    <hr>
 
     <!-- Games -->
-    <div class="section">
-      <h2>Games</h2>
-      <form id="create-game-form">
-        <input type="text" id="game-name" placeholder="Game name" required><br>
-        <textarea id="game-desc" placeholder="Description"></textarea><br>
-        <label>Thumbnail: <input type="file" id="game-thumbnail" accept="image/png"></label><br>
-        <label>Icon: <input type="file" id="game-icon" accept="image/png"></label><br>
-        <button type="submit">Create Game</button>
-      </form>
-      <div id="games-list"></div>
-    </div>
+    <section>
+      <h2>Create a Game</h2>
+      <input id="game-name" placeholder="Game Name"><br>
+      <textarea id="game-desc" placeholder="Game Description"></textarea><br>
+      <label>Thumbnail: <input type="file" id="game-thumb" accept="image/png"></label><br>
+      <label>Icon: <input type="file" id="game-icon" accept="image/png"></label><br>
+      <button id="create-game-btn">Create Game</button>
+      <p id="game-status"></p>
+    </section>
   </main>
 
   <!-- Firebase Modular SDK -->
@@ -52,7 +42,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-analytics.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, addDoc, collection, getDocs, updateDoc, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
     import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-storage.js";
 
     // Config
@@ -78,10 +68,17 @@
     const vixdustEl = document.getElementById("vixdust");
     const logoutBtn = document.getElementById("logout-btn");
 
-    const groupsList = document.getElementById("groups-list");
-    const gamesList = document.getElementById("games-list");
+    const groupNameEl = document.getElementById("group-name");
+    const groupStatusEl = document.getElementById("group-status");
+    const createGroupBtn = document.getElementById("create-group-btn");
 
-    // Current user
+    const gameNameEl = document.getElementById("game-name");
+    const gameDescEl = document.getElementById("game-desc");
+    const gameThumbEl = document.getElementById("game-thumb");
+    const gameIconEl = document.getElementById("game-icon");
+    const gameStatusEl = document.getElementById("game-status");
+    const createGameBtn = document.getElementById("create-game-btn");
+
     let currentUser = null;
 
     // Auth state
@@ -94,8 +91,6 @@
           welcomeEl.textContent = `Welcome, ${data.username}!`;
           vixdustEl.textContent = `💎 Vixdust: ${data.vixdust}`;
         }
-        loadGroups();
-        loadGames();
       } else {
         window.location.href = "login.html";
       }
@@ -107,95 +102,76 @@
       window.location.href = "login.html";
     });
 
-    // --- GROUPS ---
-    document.getElementById("create-group-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const name = document.getElementById("group-name").value;
-      const ref = await addDoc(collection(db, "groups"), {
-        name,
-        owner: currentUser.uid,
-        members: [currentUser.uid],
-        createdAt: serverTimestamp()
-      });
-      alert("Group created with ID: " + ref.id);
-      loadGroups();
+    // Create Group
+    createGroupBtn.addEventListener("click", async () => {
+      if (!currentUser) return;
+      const name = groupNameEl.value.trim();
+      if (!name) {
+        groupStatusEl.textContent = "❌ Please enter a group name.";
+        return;
+      }
+      try {
+        await addDoc(collection(db, "groups"), {
+          name,
+          owner: currentUser.uid,
+          members: [currentUser.uid],
+          createdAt: serverTimestamp()
+        });
+        groupStatusEl.textContent = "✅ Group created successfully!";
+        groupNameEl.value = "";
+      } catch (err) {
+        console.error(err);
+        groupStatusEl.textContent = "❌ Error: " + err.message;
+      }
     });
 
-    document.getElementById("join-group-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const gid = document.getElementById("join-group-id").value;
-      const groupRef = doc(db, "groups", gid);
-      await updateDoc(groupRef, {
-        members: arrayUnion(currentUser.uid)
-      });
-      alert("Joined group!");
-      loadGroups();
-    });
-
-    async function loadGroups() {
-      groupsList.innerHTML = "";
-      const querySnap = await getDocs(collection(db, "groups"));
-      querySnap.forEach(docSnap => {
-        const g = docSnap.data();
-        const div = document.createElement("div");
-        div.className = "card";
-        div.innerHTML = `<strong>${g.name}</strong><br>Owner: ${g.owner}<br>Members: ${g.members.length}`;
-        groupsList.appendChild(div);
-      });
-    }
-
-    // --- GAMES ---
-    document.getElementById("create-game-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const name = document.getElementById("game-name").value;
-      const desc = document.getElementById("game-desc").value;
-      const thumbFile = document.getElementById("game-thumbnail").files[0];
-      const iconFile = document.getElementById("game-icon").files[0];
-
-      let thumbURL = "";
-      let iconURL = "";
-
-      if (thumbFile) {
-        const thumbRef = ref(storage, "games/" + Date.now() + "-thumb.png");
-        await uploadBytes(thumbRef, thumbFile);
-        thumbURL = await getDownloadURL(thumbRef);
+    // Create Game
+    createGameBtn.addEventListener("click", async () => {
+      if (!currentUser) return;
+      const name = gameNameEl.value.trim();
+      const desc = gameDescEl.value.trim();
+      if (!name) {
+        gameStatusEl.textContent = "❌ Please enter a game name.";
+        return;
       }
 
-      if (iconFile) {
-        const iconRef = ref(storage, "games/" + Date.now() + "-icon.png");
-        await uploadBytes(iconRef, iconFile);
-        iconURL = await getDownloadURL(iconRef);
+      try {
+        let thumbUrl = "";
+        let iconUrl = "";
+
+        if (gameThumbEl.files.length > 0) {
+          const thumbFile = gameThumbEl.files[0];
+          const thumbRef = ref(storage, `games/${currentUser.uid}/thumb_${Date.now()}.png`);
+          await uploadBytes(thumbRef, thumbFile);
+          thumbUrl = await getDownloadURL(thumbRef);
+        }
+
+        if (gameIconEl.files.length > 0) {
+          const iconFile = gameIconEl.files[0];
+          const iconRef = ref(storage, `games/${currentUser.uid}/icon_${Date.now()}.png`);
+          await uploadBytes(iconRef, iconFile);
+          iconUrl = await getDownloadURL(iconRef);
+        }
+
+        await addDoc(collection(db, "games"), {
+          name,
+          description: desc,
+          owner: currentUser.uid,
+          thumbnail: thumbUrl,
+          icon: iconUrl,
+          createdAt: serverTimestamp()
+        });
+
+        gameStatusEl.textContent = "✅ Game created successfully!";
+        gameNameEl.value = "";
+        gameDescEl.value = "";
+        gameThumbEl.value = "";
+        gameIconEl.value = "";
+      } catch (err) {
+        console.error(err);
+        gameStatusEl.textContent = "❌ Error: " + err.message;
       }
-
-      await addDoc(collection(db, "games"), {
-        name,
-        description: desc,
-        owner: currentUser.uid,
-        thumbnail: thumbURL,
-        icon: iconURL,
-        createdAt: serverTimestamp()
-      });
-
-      alert("Game created!");
-      loadGames();
     });
-
-    async function loadGames() {
-      gamesList.innerHTML = "";
-      const querySnap = await getDocs(collection(db, "games"));
-      querySnap.forEach(docSnap => {
-        const g = docSnap.data();
-        const div = document.createElement("div");
-        div.className = "card";
-        div.innerHTML = `
-          <strong>${g.name}</strong><br>
-          ${g.description}<br>
-          ${g.icon ? `<img src="${g.icon}" alt="icon">` : ""}
-          ${g.thumbnail ? `<img src="${g.thumbnail}" alt="thumbnail">` : ""}
-        `;
-        gamesList.appendChild(div);
-      });
-    }
   </script>
 </body>
 </html>
