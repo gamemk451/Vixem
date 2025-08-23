@@ -1,66 +1,183 @@
-/* style.css — Vixem Theme */
-body {
+/* Base Reset + Layout */
+* {
   margin: 0;
-  font-family: 'Segoe UI', Roboto, sans-serif;
-  background: linear-gradient(180deg, #fff, #eee);
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+  background: linear-gradient(180deg, #ffffff, #f4f4f4);
   color: #222;
+  line-height: 1.6;
   transition: background 0.5s ease;
+  animation: fadeInBody 0.6s ease;
 }
 
+/* Headings */
 h1, h2 {
   text-align: center;
   font-weight: 700;
   margin-top: 40px;
   animation: fadeInDown 0.6s ease;
 }
+h1 {
+  font-size: 2.5rem;
+  color: #111;
+}
+h2 {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 20px;
+}
+h2::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 3px;
+  background: #555;
+  margin: 12px auto 0;
+  border-radius: 2px;
+}
 
-form {
-  max-width: 400px;
-  margin: 30px auto;
-  padding: 20px;
-  background: #f9f9f9;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+/* Paragraphs */
+p {
+  color: #555;
+  max-width: 750px;
+  margin: 0 auto 25px;
+  font-size: 1.1rem;
+  text-align: center;
+  line-height: 1.8;
   animation: fadeInUp 0.6s ease;
 }
 
-input {
+/* Forms */
+form {
+  max-width: 500px;
+  margin: 30px auto;
+  padding: 25px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  animation: fadeInUp 0.6s ease;
+}
+input, textarea {
   width: 100%;
   padding: 12px;
   margin: 10px 0;
   border: 1px solid #ccc;
   border-radius: 8px;
+  font-size: 1rem;
   transition: all 0.3s ease;
 }
-
-input:focus {
+input:focus, textarea:focus {
   border-color: #444;
   background: #fff;
 }
 
+/* Buttons */
 button {
+  display: block;
   width: 100%;
   padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
   background: linear-gradient(135deg, #444, #666);
-  color: white;
   border: none;
-  border-radius: 10px;
-  font-weight: bold;
+  border-radius: 12px;
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin-top: 20px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
 }
-
 button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  transform: translateY(-3px) scale(1.04);
+  background: linear-gradient(135deg, #555, #777);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+button:active {
+  transform: translateY(1px) scale(0.97);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
 }
 
+/* Game & Group Cards */
+ul {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+ul li {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  color: #444;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+ul li:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+ul li::before {
+  content: "▹";
+  color: #666;
+  font-weight: bold;
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+}
+
+/* Images */
+img {
+  max-width: 85%;
+  height: auto;
+  display: block;
+  margin: 30px auto;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease;
+}
+img:hover {
+  transform: scale(1.02);
+}
+
+/* Vixdust Display */
+#vixdust {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 20px auto;
+  text-align: center;
+  color: #333;
+  animation: fadeInUp 0.6s ease;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 40px 15px;
+  color: #777;
+  font-size: 0.95rem;
+  background: #f2f2f2;
+  margin-top: 60px;
+}
+
+/* Animations */
 @keyframes fadeInDown {
   from { opacity: 0; transform: translateY(-20px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInBody {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
