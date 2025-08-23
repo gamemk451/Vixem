@@ -12,22 +12,26 @@
     <button type="submit">Login</button>
   </form>
 
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js"></script>
   <script>
-    const firebaseConfig = { /* your config */ };
+    const firebaseConfig = { /* your config above */ };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    document.getElementById("login-form").addEventListener("submit", function(e) {
+    document.getElementById("login-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const username = document.getElementById("username").value;
       const password = document.getElementById("password").value;
       const email = `${username}@vixem.dev`;
 
-      auth.signInWithEmailAndPassword(email, password)
-        .then(() => window.location.href = "home.html")
-        .catch(err => alert("Login failed: " + err.message));
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+        window.location.href = "home.html";
+      } catch (err) {
+        alert("Login failed: " + err.message);
+      }
     });
   </script>
 </body>
