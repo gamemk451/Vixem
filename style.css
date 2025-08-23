@@ -31,10 +31,7 @@ h1, h2 {
   margin-bottom: 20px;
   animation: fadeInDown 0.6s ease;
 }
-h1 {
-  font-size: 2.4rem;
-  color: #111;
-}
+h1 { font-size: 2.4rem; color: #111; }
 h2 {
   font-size: 1.8rem;
   color: #333;
@@ -80,47 +77,47 @@ input {
   font-size: 1rem;
   transition: border-color 0.2s ease;
 }
-input:focus {
-  border-color: #444;
-  outline: none;
-}
+input:focus { border-color: #444; outline: none; }
 
 /* BUTTONS */
 button {
-  width: 100%;
-  padding: 14px;
-  margin-top: 10px;
-  font-size: 1rem;
+  padding: 10px 18px;
+  font-size: 0.95rem;
   font-weight: 600;
   color: #fff;
   background: linear-gradient(135deg, #444, #666);
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.25s ease;
+  display: inline-block;
+  width: auto; /* FIX: buttons are no longer 100% */
 }
 button:hover {
   transform: translateY(-2px);
   background: linear-gradient(135deg, #555, #777);
-  box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.15);
 }
-button:active {
-  transform: scale(0.97);
-}
+button:active { transform: scale(0.97); }
 
-/* BUTTON GROUP (index.html) */
-.button-group {
+/* PROFILE BAR */
+.profile-bar {
   display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-top: 25px;
-}
-.button-group button {
-  width: auto;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
   padding: 12px 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  margin-bottom: 20px;
+}
+.profile-bar span {
+  font-size: 1rem;
+  color: #333;
+  font-weight: 600;
 }
 
-/* LISTS (docs.html) */
+/* LISTS */
 ul {
   list-style: none;
   display: grid;
@@ -132,7 +129,7 @@ ul {
 ul li {
   background: #fff;
   border-radius: 12px;
-  padding: 20px;
+  padding: 18px;
   text-align: center;
   color: #444;
   box-shadow: 0 4px 12px rgba(0,0,0,0.06);
@@ -141,6 +138,37 @@ ul li {
 ul li:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+/* GAME / GROUP CARDS */
+.card-header img {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+.card-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* DROPDOWNS (popup panels) */
+.dropdown {
+  background: #fff;
+  border-radius: 12px;
+  margin: 12px 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  overflow: hidden;
+  transition: max-height 0.35s ease, padding 0.35s ease;
+  max-height: 0;
+  padding: 0 20px;
+}
+.dropdown.active {
+  max-height: 500px; /* expands smoothly */
+  padding: 20px;
 }
 
 /* FOOTER */
